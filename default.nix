@@ -128,7 +128,7 @@ pkgs.runCommand "gowin-ide-wrapper"
     Name=Gowin IDE
     Comment=Gowin FPGA design environment
     Exec=$out/bin/gw_ide %F
-    Icon=gowin
+    Icon=$out/share/icons/hicolor/256x256/apps/gowin.png
     Terminal=false
     Categories=Development;Electronics;
     StartupNotify=true
