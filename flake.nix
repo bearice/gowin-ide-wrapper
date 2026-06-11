@@ -16,9 +16,7 @@
         system:
         let
           pkgs = import nixpkgs { inherit system; };
-          gowin = pkgs.callPackage ./default.nix {
-            gowinRoot = self;
-          };
+          gowin = pkgs.callPackage ./default.nix {};
         in
         {
           default = gowin;
@@ -30,7 +28,7 @@
         default = self.apps.${system}.gowin;
         gowin = {
           type = "app";
-          program = "${self.packages.${system}.default}/bin/gowin-fhs";
+          program = "${self.packages.${system}.default}/bin/gw_ide";
           meta.description = "Run the Gowin IDE";
         };
       });
