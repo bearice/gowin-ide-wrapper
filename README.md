@@ -25,13 +25,14 @@ After installing, the wrapper exposes the Gowin `IDE/bin` executables, including
 
 ## Gowin Install Path
 
-By default, the wrappers expect Gowin to be installed at:
+By default, the wrappers look for Gowin at:
 
 ```sh
-/home/bearice/.local/gowin_linux
+$HOME/.local/gowin_linux
 ```
 
-Override that at runtime with `GOWIN_ROOT`:
+Set `GOWIN_ROOT` to override that. It should point to the directory that
+contains `IDE/` and `Programmer/`:
 
 ```sh
 GOWIN_ROOT=/path/to/gowin_linux nix run github:bearice/gowin-ide-wrapper
@@ -42,6 +43,9 @@ For installed wrappers:
 ```sh
 GOWIN_ROOT=/path/to/gowin_linux gw_ide
 ```
+
+If neither `GOWIN_ROOT` nor the default path contains the requested executable,
+the wrapper exits with a clear error.
 
 ## Desktop Launcher
 

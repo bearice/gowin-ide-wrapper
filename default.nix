@@ -1,7 +1,6 @@
 {
   pkgs ? import <nixpkgs> {},
   gowinRoot ? null,
-  defaultGowinRoot ? "/home/bearice/.local/gowin_linux",
 }:
 let
   inherit (pkgs) lib;
@@ -32,7 +31,7 @@ let
 
   gowinRootRuntime =
     if gowinRoot == null then
-      "\${GOWIN_ROOT:-${defaultGowinRoot}}"
+      "\${GOWIN_ROOT:-\${HOME:-}/.local/gowin_linux}"
     else
       toString gowinRoot;
 
@@ -44,17 +43,30 @@ let
 
     executable="$1"
     shift
+    gowin_root="${gowinRootRuntime}"
+
+    if [ -z "$gowin_root" ]; then
+      echo "GOWIN_ROOT must point to a Gowin Linux install directory." >&2
+      echo "Example: GOWIN_ROOT=/opt/gowin/gowin_linux $executable" >&2
+      exit 1
+    fi
+
+    if [ ! -x "$gowin_root/IDE/bin/$executable" ]; then
+      echo "Gowin executable not found or not executable: $gowin_root/IDE/bin/$executable" >&2
+      echo "Install Gowin at \$HOME/.local/gowin_linux or set GOWIN_ROOT to its install directory." >&2
+      exit 1
+    fi
 
     unset QT_PLUGIN_PATH QML2_IMPORT_PATH
 
-    export GOWINHOME="${gowinRootRuntime}/IDE"
-    export QT_PLUGIN_PATH="${gowinRootRuntime}/IDE/plugins/qt"
+    export GOWINHOME="$gowin_root/IDE"
+    export QT_PLUGIN_PATH="$gowin_root/IDE/plugins/qt"
     export QT_QPA_PLATFORM="''${QT_QPA_PLATFORM:-xcb}"
 
-    export LD_LIBRARY_PATH="${pkgs.freetype}/lib:${gowinRootRuntime}/IDE/lib:''${LD_LIBRARY_PATH:-}"
+    export LD_LIBRARY_PATH="${pkgs.freetype}/lib:$gowin_root/IDE/lib:''${LD_LIBRARY_PATH:-}"
     export LD_PRELOAD="${pkgs.freetype}/lib/libfreetype.so.6''${LD_PRELOAD:+:''${LD_PRELOAD}}"
 
-    exec "${gowinRootRuntime}/IDE/bin/$executable" "$@"
+    exec "$gowin_root/IDE/bin/$executable" "$@"
   '';
 
   fhsEnv = pkgs.buildFHSEnv {
