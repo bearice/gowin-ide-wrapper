@@ -96,7 +96,10 @@ let
 in
 pkgs.runCommand "gowin-ide-wrapper"
   {
-    nativeBuildInputs = [ pkgs.makeWrapper ];
+    nativeBuildInputs = [
+      pkgs.desktop-file-utils
+      pkgs.makeWrapper
+    ];
     meta = {
       description = "FHS wrappers for Gowin IDE binaries";
       mainProgram = "gw_ide";
@@ -106,7 +109,8 @@ pkgs.runCommand "gowin-ide-wrapper"
     };
   }
   ''
-    mkdir -p "$out/bin"
+    mkdir -p "$out/bin" "$out/share/applications"
+    install -Dm644 ${./gowin.png} "$out/share/icons/hicolor/256x256/apps/gowin.png"
 
     ${lib.concatMapStringsSep "\n" (
       executable:
@@ -117,4 +121,18 @@ pkgs.runCommand "gowin-ide-wrapper"
     ) gowinExecutables}
 
     ln -s gw_ide "$out/bin/gowin-fhs"
+
+    cat > "$out/share/applications/gowin-ide.desktop" <<EOF
+    [Desktop Entry]
+    Type=Application
+    Name=Gowin IDE
+    Comment=Gowin FPGA design environment
+    Exec=$out/bin/gw_ide %F
+    Icon=gowin
+    Terminal=false
+    Categories=Development;Electronics;
+    StartupNotify=true
+    EOF
+
+    desktop-file-validate "$out/share/applications/gowin-ide.desktop"
   ''
